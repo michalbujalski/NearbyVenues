@@ -1,0 +1,44 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion rootProject.ext.compileVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minVersion
+        targetSdkVersion rootProject.ext.targetVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    def deps = rootProject.ext.deps
+    implementation project(":data")
+    implementation deps.appcompat
+    implementation deps.rxjava2
+    implementation deps.retrofit
+    testImplementation deps.junit
+    androidTestImplementation deps.runner
+    androidTestImplementation deps.espressocore
+    implementation deps.kotlinstdlib
+    implementation deps.dagger
+    implementation deps.daggerSupport
+    kapt deps.daggerCompiler
+    kapt deps.daggerProcessor
+}
+repositories {
+    mavenCentral()
+}

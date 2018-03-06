@@ -1,0 +1,46 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion rootProject.ext.compileVersion
+    defaultConfig {
+        applicationId "com.mb.nearbyvenues"
+        minSdkVersion rootProject.ext.minVersion
+        targetSdkVersion rootProject.ext.targetVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+
+    def deps = rootProject.ext.deps
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':domain')
+    implementation project(':data')
+    implementation deps.kotlinstdlib
+    implementation deps.appcompat
+    implementation deps.constraintlayout
+    implementation deps.rxandroid
+    implementation deps.dagger
+    implementation deps.daggerSupport
+    implementation deps.rxPermissions
+    kapt deps.daggerCompiler
+    kapt deps.daggerProcessor
+    testImplementation deps.junit
+    androidTestImplementation deps.runner
+    androidTestImplementation (deps.espressocore){
+        exclude group: "com.google.code.findbugs"
+    }
+}
