@@ -31,11 +31,16 @@ dependencies {
     implementation project(':data')
     implementation deps.kotlinstdlib
     implementation deps.appcompat
+    implementation deps.recyclerView
     implementation deps.constraintlayout
     implementation deps.rxandroid
     implementation deps.dagger
     implementation deps.daggerSupport
     implementation deps.rxPermissions
+    implementation deps.fastAdapter
+    implementation deps.glide
+    kapt deps.glideComplier
+
     kapt deps.daggerCompiler
     kapt deps.daggerProcessor
     testImplementation deps.junit

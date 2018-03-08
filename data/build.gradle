@@ -43,6 +43,8 @@ dependencies {
     implementation deps.gslocation
     implementation deps.gsplaces
     implementation deps.retrofitRxAdapter
+    implementation deps.rxandroid
+
 }
 repositories {
     mavenCentral()
