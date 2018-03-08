@@ -12,7 +12,7 @@ import javax.inject.Inject
 class VenuesListUseCase @Inject constructor(
         private val venuesRepository: VenuesRepository,
         private val venuesMapper: VenueMapper
-): ObservableUseCase<List<Venue>,Void> {
+): ObservableUseCase<List<Venue>, Void>() {
     override fun run(params: Void?): Observable<List<Venue>> {
         return venuesRepository
                 .venues()

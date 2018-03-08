@@ -1,5 +1,7 @@
 package com.mb.nearbyvenues
 
+import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.module.AppGlideModule
 import com.mb.nearbyvenues.injection.DaggerApplicationComponent
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
@@ -14,3 +16,6 @@ class NearbyVenuesApplication: DaggerApplication(){
     }
 
 }
+
+@GlideModule
+class VenuesAppGlideModule:AppGlideModule()
