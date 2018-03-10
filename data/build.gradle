@@ -10,7 +10,6 @@ android {
         versionName rootProject.ext.versionName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-//        multiDexEnabled = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -44,6 +43,9 @@ dependencies {
     implementation deps.gsplaces
     implementation deps.retrofitRxAdapter
     implementation deps.rxandroid
+    testImplementation deps.mockito
+    testImplementation deps.mockitoKotlin
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
 }
 repositories {

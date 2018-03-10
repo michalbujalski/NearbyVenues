@@ -44,8 +44,16 @@ dependencies {
     kapt deps.daggerCompiler
     kapt deps.daggerProcessor
     testImplementation deps.junit
+
+    testImplementation deps.mockito
+    testImplementation deps.mockitoKotlin
+    testImplementation deps.rxSchedulersRule
     androidTestImplementation deps.runner
     androidTestImplementation (deps.espressocore){
         exclude group: "com.google.code.findbugs"
     }
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

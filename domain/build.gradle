@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion rootProject.ext.compileVersion
@@ -38,6 +39,10 @@ dependencies {
     implementation deps.daggerSupport
     kapt deps.daggerCompiler
     kapt deps.daggerProcessor
+    testImplementation deps.rxSchedulersRule
+    testImplementation deps.mockito
+    testImplementation deps.mockitoKotlin
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 repositories {
     mavenCentral()
