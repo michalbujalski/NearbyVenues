@@ -1,10 +1,15 @@
-package com.mb.nearbyvenues.utils
+package com.mb.data.utils
 
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import org.reactivestreams.Subscription
+
+inline fun Disposable.addTo(compositeDisposable: CompositeDisposable){
+    compositeDisposable.add(this)
+}
 
 fun <T> Observable<T>.onIoThread(): Observable<T> {
     return subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
