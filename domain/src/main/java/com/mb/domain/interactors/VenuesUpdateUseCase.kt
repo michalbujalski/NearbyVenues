@@ -15,6 +15,7 @@ class VenuesUpdateUseCase @Inject constructor(
         private val venuesRepository: VenuesRepository,
         private val venuesService: VenuesService
 ):ObservableUseCase<VenuesUpdateUseCase.UpdateResult,Void>() {
+
     private val behaviorSubject:BehaviorSubject<UpdateResult> = BehaviorSubject.create()
 
     override fun run(params: Void?): Observable<UpdateResult> {
