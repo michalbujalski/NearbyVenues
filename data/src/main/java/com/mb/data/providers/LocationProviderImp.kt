@@ -1,7 +1,4 @@
 package com.mb.data.providers
-
-//import com.patloew.rxlocation.RxLocation
-//import com.patloew.rxlocation.RxLocation
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,8 +8,6 @@ import com.mb.data.entities.CurrentLocationEntity
 import io.reactivex.Observable
 import pl.charmas.android.reactivelocation2.ReactiveLocationProvider
 import kotlin.reflect.jvm.internal.impl.javax.inject.Inject
-
-//import com.google.android.gms.location.LocationRequest
 
 class LocationProviderImpl @Inject constructor(private val context: Context):LocationProvider {
 
@@ -32,8 +27,6 @@ class LocationProviderImpl @Inject constructor(private val context: Context):Loc
                      .map { location ->
                          CurrentLocationEntity(location.latitude, location.longitude)
                      }.take(1)
-
-             Observable.just(CurrentLocationEntity(1.0,1.0))
          }
      }
     class LocationPermissionException:Exception()

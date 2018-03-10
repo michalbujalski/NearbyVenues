@@ -31,16 +31,29 @@ dependencies {
     implementation project(':data')
     implementation deps.kotlinstdlib
     implementation deps.appcompat
+    implementation deps.recyclerView
     implementation deps.constraintlayout
     implementation deps.rxandroid
     implementation deps.dagger
     implementation deps.daggerSupport
     implementation deps.rxPermissions
+    implementation deps.fastAdapter
+    implementation deps.glide
+    kapt deps.glideComplier
+
     kapt deps.daggerCompiler
     kapt deps.daggerProcessor
     testImplementation deps.junit
+
+    testImplementation deps.mockito
+    testImplementation deps.mockitoKotlin
+    testImplementation deps.rxSchedulersRule
     androidTestImplementation deps.runner
     androidTestImplementation (deps.espressocore){
         exclude group: "com.google.code.findbugs"
     }
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }
