@@ -7,11 +7,13 @@ import com.mb.nearbyvenues.presentation.VenueListPresenterImpl
 import com.mb.nearbyvenues.presentation.VenuesListView
 import com.nhaarman.mockito_kotlin.*
 import io.github.plastix.rxschedulerrule.RxSchedulerRule
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyList
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
@@ -27,6 +29,7 @@ class VenuesListPresenterTests {
     lateinit var listUseCase: VenuesListUseCase
     @Mock
     lateinit var view: VenuesListView
+    private val publishSubject: PublishSubject<VenuesUpdateUseCase.UpdateResult> = PublishSubject.create()
 
     @Before
     fun setUp() {
@@ -34,6 +37,10 @@ class VenuesListPresenterTests {
         venuesPresenter = VenueListPresenterImpl(
                 listUseCase, updateUseCase, view
         )
+        whenever(
+                updateUseCase
+                        .run(params = eq(null), compositeDisposable = any<CompositeDisposable>())
+        ).thenReturn(publishSubject)
     }
 
     @Test
@@ -57,11 +64,9 @@ class VenuesListPresenterTests {
 
     @Test
     fun `check showing update started info`() {
-        val publishSubject: PublishSubject<VenuesUpdateUseCase.UpdateResult> = PublishSubject.create()
-        whenever(updateUseCase.run()).thenReturn(publishSubject)
 
         venuesPresenter.updateList()
-        publishSubject.onNext(VenuesUpdateUseCase.UpdateResult.FETCHING_VENUES)
+        publishSubject.onNext(VenuesUpdateUseCase.UpdateResult(VenuesUpdateUseCase.UpdateResult.Type.FETCHING_VENUES))
 
         verify(view).updateStarted()
         verify(view).isFetchingVenues()
@@ -70,24 +75,58 @@ class VenuesListPresenterTests {
 
     @Test
     fun `check showing location fetch started info`() {
-        val publishSubject: PublishSubject<VenuesUpdateUseCase.UpdateResult> = PublishSubject.create()
-        whenever(updateUseCase.run()).thenReturn(publishSubject)
-
         venuesPresenter.updateList()
-        publishSubject.onNext(VenuesUpdateUseCase.UpdateResult.FETCHING_LOCATION)
+        publishSubject.onNext(VenuesUpdateUseCase.UpdateResult(VenuesUpdateUseCase.UpdateResult.Type.FETCHING_LOCATION))
 
         verify(view).isFetchingLocation()
     }
 
     @Test
     fun `check showing venues details fetch started info`() {
-        val publishSubject: PublishSubject<VenuesUpdateUseCase.UpdateResult> = PublishSubject.create()
-        whenever(updateUseCase.run()).thenReturn(publishSubject)
-
         venuesPresenter.updateList()
-        publishSubject.onNext(VenuesUpdateUseCase.UpdateResult.FETCHING_VENUES_DETAILS)
+        publishSubject.onNext(
+                VenuesUpdateUseCase.UpdateResult(
+                        VenuesUpdateUseCase.UpdateResult.Type.FETCHING_VENUES_DETAILS
+                )
+        )
 
         verify(view).isFetchingVenuesDetails()
+    }
+
+    @Test
+    fun `check handling no connection error`(){
+        venuesPresenter.updateList()
+        publishSubject.onNext(
+                VenuesUpdateUseCase.UpdateResult(
+                        error = VenuesUpdateUseCase.ApiException(VenuesUpdateUseCase.ApiException.NO_CONNECTION)
+                )
+        )
+        verify(view).hideProgress()
+        verify(view).onNoConnection(any())
+    }
+
+    @Test
+    fun `check handling to many requests error`(){
+        venuesPresenter.updateList()
+        publishSubject.onNext(
+                VenuesUpdateUseCase.UpdateResult(
+                        error = VenuesUpdateUseCase.ApiException(VenuesUpdateUseCase.ApiException.TO_MANY_REQUESTS)
+                )
+        )
+        verify(view).hideProgress()
+        verify(view).onErrorResponse(eq(R.string.errorToManyRequests))
+    }
+
+    @Test
+    fun `check handling unspecified error`(){
+        venuesPresenter.updateList()
+        publishSubject.onNext(
+                VenuesUpdateUseCase.UpdateResult(
+                        error = IllegalAccessException()
+                )
+        )
+        verify(view).hideProgress()
+        verify(view).onErrorResponse(anyString())
     }
 
 }

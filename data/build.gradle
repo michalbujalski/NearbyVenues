@@ -10,6 +10,8 @@ android {
         versionName rootProject.ext.versionName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "FOURSQUARE_CLIENT_ID", "\"$foursquareClientApi\"")
+        buildConfigField("String", "FOURSQUARE_CLIENT_SECRET", "\"$foursquareClientSecret\"")
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

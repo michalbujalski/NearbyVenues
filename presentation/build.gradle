@@ -32,6 +32,7 @@ dependencies {
     implementation deps.kotlinstdlib
     implementation deps.appcompat
     implementation deps.recyclerView
+    implementation deps.supportDesing
     implementation deps.constraintlayout
     implementation deps.rxandroid
     implementation deps.dagger

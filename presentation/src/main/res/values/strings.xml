@@ -3,4 +3,8 @@
     <string name="venuesHeaderIsFetchingLocation">Fetching location</string>
     <string name="venuesHeaderIsFetchingVenues">Fetching venues</string>
     <string name="venuesHeaderIsFetchingVenusesDetails">Fetching venues details</string>
+
+    <string name="errorNoConnectionRetry">Retry</string>
+    <string name="errorNoConnection">No internet connection</string>
+    <string name="errorToManyRequests">To many requests</string>
 </resources>

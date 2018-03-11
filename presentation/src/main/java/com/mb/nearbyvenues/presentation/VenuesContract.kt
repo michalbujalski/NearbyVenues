@@ -1,8 +1,9 @@
 package com.mb.nearbyvenues.presentation
 
+import android.support.annotation.IntegerRes
 import com.mb.domain.models.Venue
 
-interface VenuesListView {
+interface VenuesListView:ApiContract {
     fun setList(list:List<Venue>)
     fun updateFinished()
     fun updateStarted()
@@ -10,6 +11,7 @@ interface VenuesListView {
     fun isFetchingLocation()
     fun isFetchingVenues()
     fun isFetchingVenuesDetails()
+    fun hideProgress()
 }
 interface VenuesListPresenter {
     fun fetchList()
