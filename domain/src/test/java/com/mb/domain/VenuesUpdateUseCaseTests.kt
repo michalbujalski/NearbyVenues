@@ -25,12 +25,11 @@ class VenuesUpdateUseCaseTests {
     lateinit var useCase:VenuesUpdateUseCase
     @Mock lateinit var locationProvider: LocationProvider
     @Mock lateinit var venuesRepository: VenuesRepository
-    @Mock lateinit var venuesService: VenuesService
 
     @Before
     fun setUp(){
         MockitoAnnotations.initMocks(this)
-        useCase = VenuesUpdateUseCase(locationProvider,venuesRepository,venuesService)
+        useCase = VenuesUpdateUseCase(locationProvider,venuesRepository)
     }
 
     @Test
@@ -38,39 +37,25 @@ class VenuesUpdateUseCaseTests {
         val testObserver:TestObserver<VenuesUpdateUseCase.UpdateResult> = TestObserver.create()
         val venueId = "id"
         whenever(locationProvider.observeLocation()).thenReturn(Observable.just(CurrentLocationEntity(1.0,1.0)))
-        whenever(venuesService.fetchVenues(any(), any()))
+        whenever(venuesRepository.fetchVenues(any()))
                 .thenReturn(
                         Observable
                                 .just(
-                                        VenuesResponseJson(
-                                                VenuesJson(
-                                                        arrayListOf(
-                                                                VenueEntity(id= venueId, photos=null)
-                                                        )
-                                                )
-                                        )
+                                    arrayListOf(
+                                        VenueEntity(id= venueId, photos=null)
+                                    )
                                 )
                 )
-        whenever(venuesService.fetchVenuePhoto(eq(venueId)))
-                .thenReturn(Single
-                                .just(
-                                        VenusePhotosResponseJson(
-                                                VenuesPhotosJson(
-                                                        VenuesPhotosItems(
-                                                                listOf(VenuePhotoEntity(
-                                                                        "pref","suff",
-                                                                        "100","100"))
-                                                        )
-                                                )
-                                        )
-                                ))
+        whenever(venuesRepository.fetchVenueDetails(any()))
+                .thenReturn(Observable
+                                .just(VenueEntity("id", emptyList())))
 
         useCase.run().subscribe(testObserver)
 
         testObserver.assertNoErrors()
         verify(locationProvider).observeLocation()
-        verify(venuesService).fetchVenues(any(), any())
-        verify(venuesService, times(1)).fetchVenuePhoto(any())
+        verify(venuesRepository).fetchVenues(any())
+        verify(venuesRepository, times(1)).fetchVenueDetails(any())
 
         testObserver.assertComplete()
 
