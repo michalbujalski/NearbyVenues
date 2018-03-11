@@ -5,6 +5,7 @@ import com.mb.data.utils.addTo
 import com.mb.data.utils.onIoThread
 import com.mb.domain.interactors.VenuesListUseCase
 import com.mb.domain.interactors.VenuesUpdateUseCase
+import com.mb.nearbyvenues.R
 import io.reactivex.disposables.CompositeDisposable
 
 class VenueListPresenterImpl(
@@ -21,29 +22,51 @@ class VenueListPresenterImpl(
     override fun updateList() {
         view.updateStarted()
         venuesUpdateUseCase
-                .run()
+                .run(compositeDisposable = compositeDisposable)
                 .onIoThread()
                 .subscribe (
                 { result ->
-                    when(result){
-                        VenuesUpdateUseCase.UpdateResult.FETCHING_LOCATION->view.isFetchingLocation()
-                        VenuesUpdateUseCase.UpdateResult.FETCHING_VENUES->view.isFetchingVenues()
-                        VenuesUpdateUseCase.UpdateResult.FETCHING_VENUES_DETAILS->view.isFetchingVenuesDetails()
+                    result.type?.let {
+                        when(it){
+                            VenuesUpdateUseCase.UpdateResult.Type.FETCHING_LOCATION->view.isFetchingLocation()
+                            VenuesUpdateUseCase.UpdateResult.Type.FETCHING_VENUES->view.isFetchingVenues()
+                            VenuesUpdateUseCase.UpdateResult.Type.FETCHING_VENUES_DETAILS->view.isFetchingVenuesDetails()
+                        }
+                    }
+
+                    result.error?.let {
+                        handleError(it)
                     }
                 },{ e ->
-                    if( e is LocationProviderImpl.LocationPermissionException){
-                        view.requestPermission()
-                    }else{
-                        e.printStackTrace()
-                    }
+                    handleError(e)
                 }, {
                     view.updateFinished()
                 })
                 .addTo(compositeDisposable)
     }
 
+    private fun handleError(exception:Throwable){
+        view.hideProgress()
+        when (exception) {
+            is LocationProviderImpl.LocationPermissionException -> view.requestPermission()
+            is VenuesUpdateUseCase.ApiException -> {
+                when(exception.type){
+                    VenuesUpdateUseCase.ApiException.NO_CONNECTION ->
+                        view.onNoConnection({updateList()})
+                    VenuesUpdateUseCase.ApiException.TO_MANY_REQUESTS ->
+                        view.onErrorResponse(R.string.errorToManyRequests)
+                }
+            }
+            else -> {
+                view.onErrorResponse(exception.message ?: "Unknown error")
+                exception.printStackTrace()
+            }
+        }
+    }
+
     override fun fetchList() {
-        venuesListUseCase.run()
+        venuesListUseCase
+                .run()
                 .onIoThread()
                 .subscribe { list-> view.setList(list) }
                 .addTo(compositeDisposable)

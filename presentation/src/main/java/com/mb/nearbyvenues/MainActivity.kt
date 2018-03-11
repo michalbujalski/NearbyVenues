@@ -2,8 +2,12 @@ package com.mb.nearbyvenues
 
 import android.Manifest
 import android.os.Bundle
+import android.support.annotation.IntDef
+import android.support.annotation.IntegerRes
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import android.widget.Toast
 import com.mb.domain.interactors.VenuesListUseCase
 import com.mb.domain.interactors.VenuesUpdateUseCase
 import com.mb.domain.models.Venue
@@ -24,7 +28,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity(), VenuesListView {
-
     val venuesAdapter:ItemAdapter<VenuesItem> = ItemAdapter()
     val venuesHeaderAdapter:ItemAdapter<VenuesHeaderItem> = ItemAdapter()
     val fastAdapter:FastAdapter<*> by lazy{
@@ -50,9 +53,33 @@ class MainActivity : DaggerAppCompatActivity(), VenuesListView {
         venuesHeaderAdapter.set(listOf(VenuesHeaderItem(HeaderState.HIDE)))
     }
 
-    override fun setList(list: List<Venue>) {
-        Log.v("list", list.toString())
+    override fun hideProgress() {
+        venuesHeaderAdapter.set(listOf(VenuesHeaderItem(HeaderState.HIDE)))
+    }
 
+    override fun onNoConnection(retry: () -> Unit) {
+        Snackbar.make(recyclerView,R.string.errorNoConnection,Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.errorNoConnectionRetry,{retry()})
+                .show()
+    }
+
+    override fun onNoConnection() {
+        Snackbar.make(recyclerView,R.string.errorNoConnection,Snackbar.LENGTH_INDEFINITE).show()
+    }
+
+    override fun onErrorResponse(errMsg: String) {
+        Snackbar.make(recyclerView,errMsg,Snackbar.LENGTH_INDEFINITE)
+                .setAction(android.R.string.ok,{})
+                .show()
+    }
+
+    override fun onErrorResponse(errorResponse:Int) {
+        Snackbar.make(recyclerView,errorResponse,Snackbar.LENGTH_INDEFINITE)
+                .setAction(android.R.string.ok,{})
+                .show()
+    }
+
+    override fun setList(list: List<Venue>) {
         venuesAdapter.set(list.map { VenuesItem(it) })
     }
 
