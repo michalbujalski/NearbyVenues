@@ -19,7 +19,7 @@ class VenuesItem(private val venue:Venue): AbstractItem<VenuesItem, VenuesItemVH
 
     override fun bindView(holder: VenuesItemVH?, payloads: MutableList<Any>?) {
         super.bindView(holder, payloads)
-        holder?.loadPic(venue.photos.firstOrNull()?.url ?: "")
+        holder?.loadPic(venue.photos.firstOrNull()?.url)
     }
 }
 
@@ -31,7 +31,16 @@ class VenuesItemVH constructor(itemView: View):RecyclerView.ViewHolder(itemView)
         itemView.context
     }
 
-    fun loadPic(url:String) {
-        GlideApp.with(context).load(url).into(photo)
+    fun loadPic(url:String?) {
+        if(url!=null) {
+            GlideApp.with(context)
+                    .load(url)
+                    .error(R.drawable.ic_photo)
+                    .centerCrop()
+                    .into(photo)
+        }else{
+            photo.setImageResource(R.drawable.ic_photo)
+        }
+
     }
 }
