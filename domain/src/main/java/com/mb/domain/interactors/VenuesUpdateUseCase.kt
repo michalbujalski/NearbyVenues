@@ -5,9 +5,14 @@ import com.mb.data.entities.CurrentLocationEntity
 import com.mb.data.entities.VenueEntity
 import com.mb.data.network.VenuesService
 import com.mb.data.providers.LocationProvider
+import com.mb.data.utils.addTo
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
+import retrofit2.HttpException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class VenuesUpdateUseCase @Inject constructor(
@@ -16,24 +21,27 @@ class VenuesUpdateUseCase @Inject constructor(
         private val venuesService: VenuesService
 ):ObservableUseCase<VenuesUpdateUseCase.UpdateResult,Void>() {
 
-    private val behaviorSubject:BehaviorSubject<UpdateResult> = BehaviorSubject.create()
+    private var subject:PublishSubject<UpdateResult> = PublishSubject.create()
 
-    override fun run(params: Void?): Observable<UpdateResult> {
+    override fun run(params: Void?,
+                     compositeDisposable: CompositeDisposable?
+    ): Observable<UpdateResult> {
+        subject = PublishSubject.create()
         locationProvider
                 .observeLocation()
                 .observeOn(Schedulers.io())
                 .doOnNext{
-                    behaviorSubject.onNext(UpdateResult.FETCHING_LOCATION)
+                    subject.onNext(UpdateResult(type= UpdateResult.Type.FETCHING_LOCATION))
                 }
                 .map { CurrentLocationEntity(it.lat,it.lng) }
                 .doOnNext{
-                    behaviorSubject.onNext(UpdateResult.FETCHING_VENUES)
+                    subject.onNext(UpdateResult(type = UpdateResult.Type.FETCHING_VENUES))
                 }
                 .flatMap {
                     venuesService.fetchVenues(it.langLat, 10)
                 }
                 .doOnNext{
-                    behaviorSubject.onNext(UpdateResult.FETCHING_VENUES_DETAILS)
+                    subject.onNext(UpdateResult(type = UpdateResult.Type.FETCHING_VENUES_DETAILS))
                 }
                 .flatMap {
                     Observable.fromIterable(it.response.venues)
@@ -50,16 +58,44 @@ class VenuesUpdateUseCase @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         {
-                            behaviorSubject.onComplete()
+                            subject.onComplete()
                         },
                         { e ->
-                            behaviorSubject.onError(e)
+                            when (e) {
+                                is HttpException ->
+                                    subject.onNext(UpdateResult(error = ApiErrorFormatter.format(e)))
+                                is UnknownHostException ->
+                                    subject.onNext(UpdateResult(error= ApiException(ApiException.NO_CONNECTION)))
+                                else ->
+                                    subject.onError(e)
+                            }
                         }
-                )
-        return behaviorSubject
+                ).addTo(compositeDisposable)
+        return subject
     }
 
-    enum class UpdateResult{
-        FETCHING_LOCATION, FETCHING_VENUES, FETCHING_VENUES_DETAILS, FETCH_ERROR
+    class UpdateResult constructor(val type:Type? = null, val error:Exception? = null){
+        enum class Type
+        {
+            FETCHING_LOCATION, FETCHING_VENUES, FETCHING_VENUES_DETAILS
+        }
+    }
+    class ApiException constructor(val type:Int): Exception() {
+        companion object {
+            const val NO_CONNECTION = 1
+            const val TO_MANY_REQUESTS = 2
+            const val UNKNOWN = 3
+        }
+    }
+    class ApiErrorFormatter{
+        companion object {
+            fun format(httpException: HttpException):ApiException{
+                when(httpException.code()){
+                    429 ->
+                        return ApiException(ApiException.TO_MANY_REQUESTS)
+                }
+                return ApiException(ApiException.UNKNOWN)
+            }
+        }
     }
 }

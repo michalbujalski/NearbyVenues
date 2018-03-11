@@ -7,8 +7,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-inline fun Disposable.addTo(compositeDisposable: CompositeDisposable){
-    compositeDisposable.add(this)
+inline fun Disposable.addTo(compositeDisposable: CompositeDisposable?){
+    compositeDisposable?.add(this)
 }
 
 fun <T> Observable<T>.onIoThread(): Observable<T> {
