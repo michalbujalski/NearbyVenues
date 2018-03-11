@@ -15,5 +15,5 @@ interface VenuesService {
     fun fetchVenues(@Query("ll") latLng: String,@Query("limit") limit:Int): Observable<VenuesResponseJson>
 
     @GET("venues/{venue_id}/photos")
-    fun fetchVenuePhoto(@Path("venue_id") venueId: String): Single<VenusePhotosResponseJson>
+    fun fetchVenuePhoto(@Path("venue_id") venueId: String): Observable<VenusePhotosResponseJson>
 }

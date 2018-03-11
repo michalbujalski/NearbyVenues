@@ -62,8 +62,8 @@ class DataModule {
     fun venueDataStore(): VenuesDataStore = VenuesDataStoreImpl()
     @Provides
     @Singleton
-    fun venuesRepository(venuesDataStore: VenuesDataStore): VenuesRepository
-            = VenuesRepositoryImpl(venuesDataStore)
+    fun venuesRepository(venuesDataStore: VenuesDataStore, venuesService: VenuesService): VenuesRepository
+            = VenuesRepositoryImpl(venuesDataStore, venuesService)
 }
 
 @Module
@@ -80,7 +80,7 @@ class MappersModule {
 class NetworkModule{
     @Provides
     @Singleton
-    fun venuseService():VenuesService{
+    fun venuesService():VenuesService{
         return NetworkServiceProvider().venuesService()
     }
 }

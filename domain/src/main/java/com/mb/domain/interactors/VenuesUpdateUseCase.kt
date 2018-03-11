@@ -2,14 +2,11 @@ package com.mb.domain.interactors
 
 import com.mb.data.VenuesRepository
 import com.mb.data.entities.CurrentLocationEntity
-import com.mb.data.entities.VenueEntity
-import com.mb.data.network.VenuesService
 import com.mb.data.providers.LocationProvider
 import com.mb.data.utils.addTo
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import retrofit2.HttpException
 import java.net.UnknownHostException
@@ -17,8 +14,7 @@ import javax.inject.Inject
 
 class VenuesUpdateUseCase @Inject constructor(
         private val locationProvider: LocationProvider,
-        private val venuesRepository: VenuesRepository,
-        private val venuesService: VenuesService
+        private val venuesRepository: VenuesRepository
 ):ObservableUseCase<VenuesUpdateUseCase.UpdateResult,Void>() {
 
     private var subject:PublishSubject<UpdateResult> = PublishSubject.create()
@@ -38,20 +34,16 @@ class VenuesUpdateUseCase @Inject constructor(
                     subject.onNext(UpdateResult(type = UpdateResult.Type.FETCHING_VENUES))
                 }
                 .flatMap {
-                    venuesService.fetchVenues(it.langLat, 10)
+                    venuesRepository.fetchVenues(it)
                 }
                 .doOnNext{
                     subject.onNext(UpdateResult(type = UpdateResult.Type.FETCHING_VENUES_DETAILS))
                 }
                 .flatMap {
-                    Observable.fromIterable(it.response.venues)
+                    Observable.fromIterable(it)
                 }
-                .map {
-                    val id = it.id
-                    val photos = id?.let {
-                        venuesService.fetchVenuePhoto(it).blockingGet().response.photos.items
-                    }.orEmpty()
-                    VenueEntity(id=id,photos = photos)
+                .flatMap {
+                    venuesRepository.fetchVenueDetails(it)
                 }
                 .toList()
                 .doOnSuccess{venuesRepository.updateVenues(it)}
